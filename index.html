@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thử Thách Trí Nhớ 10 Cấp Độ - Giới Hạn Thời Gian</title>
+<title>Thử Thách Trí Nhớ 10 Cấp Độ - Đa Chủ Đề</title>
 <style>
 body {
     margin: 0;
@@ -23,6 +23,16 @@ h2 {
     color: #38bdf8;
     text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
     margin: 5px 0;
+}
+
+#themeName {
+    font-size: 14px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
 .status-container {
@@ -138,6 +148,7 @@ button:hover { transform: scale(1.05); }
 <body>
 
 <h2>Trí Nhớ Siêu Phàm 🧩</h2>
+<div id="themeName">Chủ đề: Đang tải...</div>
 
 <div class="status-container">
     <div id="levelStatus">MÀN 1 / 10</div>
@@ -153,7 +164,32 @@ button:hover { transform: scale(1.05); }
 </div>
 
 <script>
-const allIcons = ["💖", "🐱", "🚀", "🍕", "🧸", "🍦", "🦄", "🎈", "🌸", "⭐", "🍀", "🍭", "🎸", "🎨", "👑", "🔮", "🐼", "🦊", "🍩", "💎", "🐳", "🍓", "🧁", "🌟"];
+// Kho 5 chủ đề phong phú, mỗi chủ đề có 24 icon khác nhau
+const themes = [
+    {
+        name: "🧸 Đồ Chơi & Đáng Yêu",
+        icons: ["💖", "🧸", "🍦", "🦄", "🎈", "🌸", "⭐", "🍀", "🍭", "👑", "🔮", "🍓", "🧁", "🌟", "🎀", "🐱", "🐶", "🐰", "🦊", "🐼", "🌈", "🎨", "🔔", "🎁"]
+    },
+    {
+        name: "🍉 Trái Cây & Đồ Ăn",
+        icons: ["🍕", "🍩", "🍓", "🧁", "🍉", "🍇", "🍌", "🥑", "🍔", "🍟", "🍿", "🎂", "🍫", "🍯", "🍦", "🍳", "🥤", "🍣", "🌮", "🍍", "🍒", "🍑", "🍎", "🥕"]
+    },
+    {
+        name: "🦁 Thế Giới Động Vật",
+        icons: ["🦁", "🐯", "🐱", "🐶", "🦊", "🐻", "🐼", "🐨", "🐰", "🐹", "🐭", "🐸", "🐵", "🐧", "🦅", "🦆", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🦋"]
+    },
+    {
+        name: "🚀 Vũ Trụ & Khám Phá",
+        icons: ["🚀", "🪐", "🌍", "🌙", "☀️", "☄️", "🛸", "🛰️", "👽", "👨‍🚀", "🔭", "🌌", "⭐", "🌟", "⚡", "🔥", "💧", "🌈", "🌋", "⚓", "🧭", "🗺️", "⛺", "⛰️"]
+    },
+    {
+        name: "⚽ Thể Thao & Hoạt Động",
+        icons: ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸", "🥊", "🛹", "🚴", "🏊", "🏆", "🥇", "🎫", "🎮", "🎲", "🧩", "🎯", "🎸", "🎺", "🎤"]
+    }
+];
+
+let currentTheme = null;
+let currentIconsPool = [];
 
 let currentLevel = 1;
 const maxLevel = 10;
@@ -168,12 +204,23 @@ let isGameOver = false;
 const board = document.getElementById("board");
 const levelStatus = document.getElementById("levelStatus");
 const timerStatus = document.getElementById("timerStatus");
+const themeNameDisplay = document.getElementById("themeName");
 const msgBox = document.getElementById("msgBox");
 const msgTitle = document.getElementById("msgTitle");
 const msgText = document.getElementById("msgText");
 const msgBtn = document.getElementById("msgBtn");
 
+// Chọn ngẫu nhiên chủ đề khi vừa vào web
+pickRandomTheme();
 initGame();
+
+function pickRandomTheme() {
+    currentTheme = themes[Math.floor(Math.random() * themes.length)];
+    themeNameDisplay.innerText = `Chủ đề: ${currentTheme.name}`;
+    // Xáo trộn toàn bộ kho icon của chủ đề đó để bốc ngẫu nhiên cho các màn
+    currentIconsPool = [...currentTheme.icons];
+    currentIconsPool.sort(() => Math.random() - 0.5);
+}
 
 function initGame() {
     board.innerHTML = "";
@@ -184,16 +231,11 @@ function initGame() {
     
     totalPairsNeeded = currentLevel * 2;
     
-    // LOGIC THỜI GIAN THEO YÊU CẦU CỦA CẬU:
-    if (currentLevel <= 3) {
-        timeLeft = 30; // 3 màn đầu là 30 giây
-    } else if (currentLevel <= 5) {
-        timeLeft = 45; // 2 màn sau là 45 giây
-    } else if (currentLevel <= 7) {
-        timeLeft = 60; // 2 màn sau nữa là 1 phút (60 giây)
-    } else {
-        timeLeft = 90; // các màn còn lại là 1 phút 30 giây (90 giây)
-    }
+    // Thiết lập thời gian theo màn
+    if (currentLevel <= 3) timeLeft = 30;
+    else if (currentLevel <= 5) timeLeft = 45;
+    else if (currentLevel <= 7) timeLeft = 60;
+    else timeLeft = 90;
     
     timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
     timerStatus.style.color = "#f59e0b";
@@ -204,8 +246,11 @@ function initGame() {
     else columns = 4;
     board.style.gridTemplateColumns = `repeat(${columns}, 70px)`;
 
-    let selectedIcons = allIcons.slice(0, totalPairsNeeded);
+    // Lấy ra đúng số lượng icon cần thiết từ kho icon đã được xáo trộn
+    let selectedIcons = currentIconsPool.slice(0, totalPairsNeeded);
     let gameIcons = [...selectedIcons, ...selectedIcons];
+    
+    // XÁO TRỘN VỊ TRÍ CÁC TẤM THẺ NGẪU NHIÊN TOÀN BỘ
     gameIcons.sort(() => Math.random() - 0.5);
 
     gameIcons.forEach(icon => {
@@ -226,14 +271,9 @@ function initGame() {
 
 function updateTimer() {
     if (isGameOver) return;
-    
     timeLeft--;
     timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
-    
-    if (timeLeft <= 5) {
-        timerStatus.style.color = "#ef4444";
-    }
-
+    if (timeLeft <= 5) timerStatus.style.color = "#ef4444";
     if (timeLeft <= 0) {
         clearInterval(timerInterval);
         showLoseMessage();
@@ -244,9 +284,7 @@ function flipCard() {
     if (flippedCards.length === 2 || this.classList.contains("flipped") || timeLeft <= 0 || isGameOver) return;
     this.classList.add("flipped");
     flippedCards.push(this);
-    if (flippedCards.length === 2) {
-        checkMatch();
-    }
+    if (flippedCards.length === 2) checkMatch();
 }
 
 function checkMatch() {
@@ -273,12 +311,12 @@ function showWinMessage() {
     if (currentLevel < maxLevel) {
         msgTitle.innerText = "Đỉnh Quá Đii! 🎉";
         msgTitle.style.color = "#38bdf8";
-        msgText.innerText = `Cậu vượt qua màn ${currentLevel} rồi. Sang màn sau thử thách sẽ tăng lên đó nha!`;
+        msgText.innerText = `Cậu vượt qua màn ${currentLevel} rồi. Chuẩn bị sang màn tiếp theo với vị trí thẻ được tráo hoàn toàn mới nhé!`;
         msgBtn.innerText = "Chơi Tiếp Luôn 🚀";
     } else {
         msgTitle.innerText = "🏆 CHIẾN THẮNG CUỐI CÙNG 🏆";
         msgTitle.style.color = "#f472b6";
-        msgText.innerHTML = "Trời ơiii cậu siêu thật sự! Đã phá đảo hết 10 màn chơi thử thách thời gian của tớ rồi! <br><br> Chúc cậu luôn hạnh phúc và mãi nhớ về tớ nhé! 🥰💖✨";
+        msgText.innerHTML = "Trời ơiii cậu siêu thật sự! Đã phá đảo hết cả 10 màn chơi thử thách trí nhớ của tớ rồi! <br><br> Chúc cậu luôn vui vẻ, hạnh phúc và mãi nhớ về tớ nhé! 🥰💖✨";
         msgBtn.innerText = "Chơi Lại Từ Đầu 🔄";
         setInterval(createFirework, 200);
     }
@@ -289,20 +327,21 @@ function showLoseMessage() {
     msgBox.style.display = "block";
     msgTitle.innerText = "Hết Giờ Mất Rồi! 😢";
     msgTitle.style.color = "#ef4444";
-    msgText.innerText = `Tiếc quá chii, chỉ thiếu một chút xíu nữa thôi hà. Cậu bấm nút dưới để chơi lại màn ${currentLevel} nhé!`;
+    msgText.innerText = `Vị trí thẻ màn này vừa được xếp lại kiểu khác rồi đó. Bấm nút dưới để thử lại màn ${currentLevel} xem sao nhé!`;
     msgBtn.innerText = "Thử Lại Xem Sao 🔄";
 }
 
 function handleButtonClick() {
     msgBox.style.display = "none";
     if (msgTitle.innerText.includes("Hết Giờ")) {
-        initGame();
+        initGame(); // Thua chơi lại: tráo lại vị trí thẻ của màn đó luôn
     } else {
         if (currentLevel < maxLevel) {
             currentLevel++;
             initGame();
         } else {
             currentLevel = 1;
+            pickRandomTheme(); // Phá đảo xong chơi lại từ đầu sẽ đổi chủ đề mới
             initGame();
         }
     }
@@ -330,4 +369,3 @@ function createFirework() {
 
 </body>
 </html>
-
