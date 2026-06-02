@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thử Thách Trí Nhớ 10 Cấp Độ - Đa Chủ Đề</title>
+<title>Thử Thách Trí Nhớ Siêu Cấp - Đa Chủ Đề & Hình Nền</title>
 <style>
 body {
     margin: 0;
-    background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
     font-family: 'Arial', sans-serif;
     display: flex;
     flex-direction: column;
@@ -17,22 +16,43 @@ body {
     color: #f1f5f9;
     padding: 20px;
     box-sizing: border-box;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background 0.8s ease-in-out;
+    position: relative;
+}
+
+/* Lớp phủ mờ giúp nhìn rõ thẻ bài trên mọi loại hình nền */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 1;
+}
+
+/* Đảm bảo các thành phần giao diện nổi lên trên lớp phủ */
+h2, .status-container, #themeName, .game-board, .overlay-message, #guideOverlay {
+    position: relative;
+    z-index: 2;
 }
 
 h2 {
     color: #38bdf8;
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
     margin: 5px 0;
 }
 
 #themeName {
     font-size: 14px;
-    background: rgba(56, 189, 248, 0.15);
+    background: rgba(56, 189, 248, 0.25);
     color: #38bdf8;
     padding: 4px 12px;
     border-radius: 20px;
     margin-bottom: 10px;
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    font-weight: bold;
 }
 
 .status-container {
@@ -41,49 +61,50 @@ h2 {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 20px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-#levelStatus {
-    color: #f472b6;
-    text-shadow: 0 0 8px rgba(244, 114, 182, 0.4);
-}
+#levelStatus { color: #f472b6; text-shadow: 0 0 8px rgba(244, 114, 182, 0.4); }
+#timerStatus { color: #f59e0b; text-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
 
-#timerStatus {
-    color: #f59e0b;
-    text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-}
-
+/* Bàn chơi thu nhỏ (60px x 80px) để lộ nhiều không gian nền xung quanh */
 .game-board {
     display: grid;
-    grid-gap: 12px;
+    grid-gap: 10px;
     perspective: 1000px;
     max-width: 100%;
     justify-content: center;
+    background: rgba(15, 23, 42, 0.4);
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
 }
 
 .card {
-    width: 70px;
-    height: 90px;
+    width: 60px;
+    height: 80px;
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.4s;
     cursor: pointer;
 }
 
-.card.flipped {
-    transform: rotateY(180deg);
-}
+.card.flipped { transform: rotateY(180deg); }
 
 .card-face {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 28px;
+    font-size: 24px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.4);
 }
 
@@ -91,10 +112,7 @@ h2 {
     background: #1e293b;
     border: 2px solid #f472b6;
 }
-.card-front::before {
-    content: "❓";
-    font-size: 20px;
-}
+.card-front::before { content: "❓"; font-size: 18px; }
 
 .card-back {
     background: linear-gradient(135deg, #311042, #1e1b4b);
@@ -102,11 +120,11 @@ h2 {
     transform: rotateY(180deg);
 }
 
+/* Các khung thông báo Pop-up */
 .overlay-message {
     display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(15, 23, 42, 0.95);
     border: 2px solid #f472b6;
@@ -115,29 +133,76 @@ h2 {
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     z-index: 100;
-    max-width: 320px;
-    width: 80%;
+    max-width: 340px;
+    width: 85%;
+    backdrop-filter: blur(10px);
 }
+
+/* Bảng hướng dẫn ban đầu */
+#guideOverlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.guide-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    padding: 30px;
+    border-radius: 24px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    text-align: left;
+}
+
+.guide-card h2 { text-align: center; margin-bottom: 20px; }
+.guide-card ul { padding-left: 20px; color: #cbd5e1; line-height: 1.6; }
+.guide-card li { margin-bottom: 10px; }
 
 button {
     background: linear-gradient(90deg, #f472b6, #38bdf8);
     color: white;
     border: none;
-    padding: 10px 25px;
+    padding: 12px 30px;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 20px;
+    border-radius: 25px;
     cursor: pointer;
     margin-top: 15px;
     box-shadow: 0 4px 10px rgba(244, 114, 182, 0.4);
     transition: 0.2s;
+    width: 100%;
 }
-button:hover { transform: scale(1.05); }
+button:hover { transform: scale(1.03); }
+
+/* Hiệu ứng thời gian cộng thêm +5s bay lên */
+.time-bonus {
+    position: absolute;
+    color: #4ade80;
+    font-weight: bold;
+    font-size: 24px;
+    animation: fadeUp 1s ease-out forwards;
+    z-index: 10;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+@keyframes fadeUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-60px); opacity: 0; }
+}
 
 .star {
     position: absolute;
     animation: firework 1s ease-out forwards;
     pointer-events: none;
+    z-index: 5;
 }
 @keyframes firework {
     0% { transform: translate(0,0) scale(1); opacity: 1; }
@@ -147,12 +212,31 @@ button:hover { transform: scale(1.05); }
 </head>
 <body>
 
+<div id="guideOverlay">
+    <div class="guide-card">
+        <h2>🧩 HƯỚNG DẪN CHƠI GAME 🧩</h2>
+        <ul>
+            <li><strong>Cách chơi:</strong> Lật các tấm thẻ và tìm các cặp hình giống nhau. Mỗi lần lật sai bài sẽ tự động úp lại sau vài giây.</li>
+            <li><strong>Cấp độ:</strong> Game gồm <strong>10 màn chơi</strong> với số lượng thẻ tăng dần từ dễ đến siêu khó. Vị trí thẻ hoàn toàn ngẫu nhiên.</li>
+            <li><strong>Chủ đề & Hình nền:</strong> Mỗi lần chơi lại, game sẽ chọn ngẫu nhiên 1 trong 5 chủ đề độc đáo, hình nền xung quanh sẽ đổi liên tục theo từng màn.</li>
+            <li><strong>Mốc thời gian quy định:</strong>
+                <br>• Màn 1, 2, 3: <strong>30 giây</strong>
+                <br>• Màn 4, 5: <strong>45 giây</strong>
+                <br>• Màn 6, 7: <strong>1 phút</strong>
+                <br>• Màn 8, 9, 10: <strong>1 phút 30 giây</strong>
+            </li>
+            <li><strong>Cơ chế đặc biệt:</strong> Từ <strong>Màn 5 trở đi</strong>, mỗi lần cậu tìm đúng một cặp thẻ, cậu sẽ được <strong>cộng thêm +5 giây</strong> vào đồng hồ! 😍🔥</li>
+        </ul>
+        <button onclick="startGame()">BẤM ĐỂ PLAY ▶️</button>
+    </div>
+</div>
+
 <h2>Trí Nhớ Siêu Phàm 🧩</h2>
 <div id="themeName">Chủ đề: Đang tải...</div>
 
 <div class="status-container">
     <div id="levelStatus">MÀN 1 / 10</div>
-    <div id="timerStatus">⏱️ Thời gian: 30s</div>
+    <div id="timerStatus">⏱️ Thời gian: --s</div>
 </div>
 
 <div class="game-board" id="board"></div>
@@ -164,27 +248,57 @@ button:hover { transform: scale(1.05); }
 </div>
 
 <script>
-// Kho 5 chủ đề phong phú, mỗi chủ đề có 24 icon khác nhau
+// Kho dữ liệu 5 chủ đề, mỗi chủ đề có danh sách icon và kho ảnh nền tương ứng theo các màn
 const themes = [
     {
         name: "🧸 Đồ Chơi & Đáng Yêu",
-        icons: ["💖", "🧸", "🍦", "🦄", "🎈", "🌸", "⭐", "🍀", "🍭", "👑", "🔮", "🍓", "🧁", "🌟", "🎀", "🐱", "🐶", "🐰", "🦊", "🐼", "🌈", "🎨", "🔔", "🎁"]
+        icons: ["💖", "🧸", "🍦", "🦄", "🎈", "🌸", "⭐", "🍀", "🍭", "👑", "🔮", "🍓", "🧁", "🌟", "🎀", "🐱", "🐶", "🐰", "🦊", "🐼", "🌈", "🎨", "🔔", "🎁"],
+        backgrounds: [
+            "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200",
+            "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=1200",
+            "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=1200",
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200"
+        ]
     },
     {
         name: "🍉 Trái Cây & Đồ Ăn",
-        icons: ["🍕", "🍩", "🍓", "🧁", "🍉", "🍇", "🍌", "🥑", "🍔", "🍟", "🍿", "🎂", "🍫", "🍯", "🍦", "🍳", "🥤", "🍣", "🌮", "🍍", "🍒", "🍑", "🍎", "🥕"]
+        icons: ["🍕", "🍩", "🍓", "🧁", "🍉", "🍇", "🍌", "🥑", "🍔", "🍟", "🍿", "🎂", "🍫", "🍯", "🍦", "🍳", "🥤", "🍣", "🌮", "🍍", "🍒", "🍑", "🍎", "🥕"],
+        backgrounds: [
+            "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1200",
+            "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1200",
+            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200",
+            "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=1200"
+        ]
     },
     {
         name: "🦁 Thế Giới Động Vật",
-        icons: ["🦁", "🐯", "🐱", "🐶", "🦊", "🐻", "🐼", "🐨", "🐰", "🐹", "🐭", "🐸", "🐵", "🐧", "🦅", "🦆", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🦋"]
+        icons: ["🦁", "🐯", "🐱", "🐶", "🦊", "🐻", "🐼", "🐨", "🐰", "🐹", "🐭", "🐸", "🐵", "🐧", "🦅", "🦆", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🦋"],
+        backgrounds: [
+            "https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=1200",
+            "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=1200",
+            "https://images.unsplash.com/photo-1574063413132-355dbfd83e43?w=1200",
+            "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200"
+        ]
     },
     {
         name: "🚀 Vũ Trụ & Khám Phá",
-        icons: ["🚀", "🪐", "🌍", "🌙", "☀️", "☄️", "🛸", "🛰️", "👽", "👨‍🚀", "🔭", "🌌", "⭐", "🌟", "⚡", "🔥", "💧", "🌈", "🌋", "⚓", "🧭", "🗺️", "⛺", "⛰️"]
+        icons: ["🚀", "🪐", "🌍", "🌙", "☀️", "☄️", "🛸", "🛰️", "👽", "👨‍🚀", "🔭", "🌌", "⭐", "🌟", "⚡", "🔥", "💧", "🌈", "🌋", "⚓", "🧭", "🗺️", "⛺", "⛰️"],
+        backgrounds: [
+            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200",
+            "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200",
+            "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=1200",
+            "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1200"
+        ]
     },
     {
         name: "⚽ Thể Thao & Hoạt Động",
-        icons: ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸", "🥊", "🛹", "🚴", "🏊", "🏆", "🥇", "🎫", "🎮", "🎲", "🧩", "🎯", "🎸", "🎺", "🎤"]
+        icons: ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸", "🥊", "skateboard", "🚴", "🏊", "🏆", "🥇", "🎫", "🎮", "🎲", "🧩", "🎯", "🎸", "🎺", "🎤"],
+        backgrounds: [
+            "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200",
+            "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200",
+            "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1200",
+            "https://images.unsplash.com/photo-1541252260730-0412e8e2108e?w=1200"
+        ]
     }
 ];
 
@@ -210,16 +324,24 @@ const msgTitle = document.getElementById("msgTitle");
 const msgText = document.getElementById("msgText");
 const msgBtn = document.getElementById("msgBtn");
 
-// Chọn ngẫu nhiên chủ đề khi vừa vào web
-pickRandomTheme();
-initGame();
+function startGame() {
+    document.getElementById("guideOverlay").style.display = "none";
+    pickRandomTheme();
+    initGame();
+}
 
 function pickRandomTheme() {
     currentTheme = themes[Math.floor(Math.random() * themes.length)];
     themeNameDisplay.innerText = `Chủ đề: ${currentTheme.name}`;
-    // Xáo trộn toàn bộ kho icon của chủ đề đó để bốc ngẫu nhiên cho các màn
     currentIconsPool = [...currentTheme.icons];
     currentIconsPool.sort(() => Math.random() - 0.5);
+}
+
+function changeBackground() {
+    // Lấy ảnh ngẫu nhiên từ kho ảnh nền của chủ đề hiện tại
+    const bgArray = currentTheme.backgrounds;
+    const randomBg = bgArray[(currentLevel - 1) % bgArray.length];
+    document.body.style.backgroundImage = `url('${randomBg}')`;
 }
 
 function initGame() {
@@ -229,9 +351,12 @@ function initGame() {
     isGameOver = false;
     levelStatus.innerText = `MÀN ${currentLevel} / ${maxLevel}`;
     
+    // Tự động thay đổi ảnh nền thú vị theo chủ đề và màn chơi
+    changeBackground();
+    
     totalPairsNeeded = currentLevel * 2;
     
-    // Thiết lập thời gian theo màn
+    // Quản lý thời gian theo các màn chơi
     if (currentLevel <= 3) timeLeft = 30;
     else if (currentLevel <= 5) timeLeft = 45;
     else if (currentLevel <= 7) timeLeft = 60;
@@ -240,17 +365,15 @@ function initGame() {
     timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
     timerStatus.style.color = "#f59e0b";
 
+    // Bố trí số lượng cột lưới bài co giãn
     let columns = 4;
     if (totalPairsNeeded <= 2) columns = 2;
     else if (totalPairsNeeded === 3 || totalPairsNeeded === 6) columns = 3;
     else columns = 4;
-    board.style.gridTemplateColumns = `repeat(${columns}, 70px)`;
+    board.style.gridTemplateColumns = `repeat(${columns}, 60px)`;
 
-    // Lấy ra đúng số lượng icon cần thiết từ kho icon đã được xáo trộn
     let selectedIcons = currentIconsPool.slice(0, totalPairsNeeded);
     let gameIcons = [...selectedIcons, ...selectedIcons];
-    
-    // XÁO TRỘN VỊ TRÍ CÁC TẤM THẺ NGẪU NHIÊN TOÀN BỘ
     gameIcons.sort(() => Math.random() - 0.5);
 
     gameIcons.forEach(icon => {
@@ -292,6 +415,14 @@ function checkMatch() {
     if (card1.dataset.icon === card2.dataset.icon) {
         matchedPairs++;
         flippedCards = [];
+        
+        // CƠ CHẾ ĐẶC BIỆT: Từ màn 5 trở đi lật đúng được cộng 5 giây
+        if (currentLevel >= 5 && !isGameOver) {
+            timeLeft += 5;
+            timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
+            showTimeBonus(card2);
+        }
+
         if (matchedPairs === totalPairsNeeded) {
             clearInterval(timerInterval);
             setTimeout(showWinMessage, 500);
@@ -305,18 +436,30 @@ function checkMatch() {
     }
 }
 
+// Hiển thị hiệu ứng chữ "+5s" xanh lục bay lên tại vị trí lật thẻ đúng
+function showTimeBonus(targetCard) {
+    const rect = targetCard.getBoundingClientRect();
+    const bonus = document.createElement("div");
+    bonus.innerText = "+5s";
+    bonus.className = "time-bonus";
+    bonus.style.left = (rect.left + window.scrollX + 15) + "px";
+    bonus.style.top = (rect.top + window.scrollY - 10) + "px";
+    document.body.appendChild(bonus);
+    setTimeout(() => bonus.remove(), 1000);
+}
+
 function showWinMessage() {
     isGameOver = true;
     msgBox.style.display = "block";
     if (currentLevel < maxLevel) {
         msgTitle.innerText = "Đỉnh Quá Đii! 🎉";
         msgTitle.style.color = "#38bdf8";
-        msgText.innerText = `Cậu vượt qua màn ${currentLevel} rồi. Chuẩn bị sang màn tiếp theo với vị trí thẻ được tráo hoàn toàn mới nhé!`;
+        msgText.innerText = `Cậu vượt qua màn ${currentLevel} rồi. Sang màn tiếp theo với hình nền và vị trí thẻ hoàn toàn mới nhé!`;
         msgBtn.innerText = "Chơi Tiếp Luôn 🚀";
     } else {
         msgTitle.innerText = "🏆 CHIẾN THẮNG CUỐI CÙNG 🏆";
         msgTitle.style.color = "#f472b6";
-        msgText.innerHTML = "Trời ơiii cậu siêu thật sự! Đã phá đảo hết cả 10 màn chơi thử thách trí nhớ của tớ rồi! <br><br> Chúc cậu luôn vui vẻ, hạnh phúc và mãi nhớ về tớ nhé! 🥰💖✨";
+        msgText.innerHTML = "Trời ơiii cậu siêu thật sự! Đã phá đảo hết cả 10 màn chơi thử thách của tớ rồi! <br><br> Chúc cậu luôn vui vẻ, hạnh phúc và mãi nhớ về tớ nhé! 🥰💖✨";
         msgBtn.innerText = "Chơi Lại Từ Đầu 🔄";
         setInterval(createFirework, 200);
     }
@@ -327,21 +470,21 @@ function showLoseMessage() {
     msgBox.style.display = "block";
     msgTitle.innerText = "Hết Giờ Mất Rồi! 😢";
     msgTitle.style.color = "#ef4444";
-    msgText.innerText = `Vị trí thẻ màn này vừa được xếp lại kiểu khác rồi đó. Bấm nút dưới để thử lại màn ${currentLevel} xem sao nhé!`;
+    msgText.innerText = `Không sao nè, màn này vừa được tráo lại bài rồi. Bấm nút dưới để thử lại màn ${currentLevel} nhé!`;
     msgBtn.innerText = "Thử Lại Xem Sao 🔄";
 }
 
 function handleButtonClick() {
     msgBox.style.display = "none";
     if (msgTitle.innerText.includes("Hết Giờ")) {
-        initGame(); // Thua chơi lại: tráo lại vị trí thẻ của màn đó luôn
+        initGame();
     } else {
         if (currentLevel < maxLevel) {
             currentLevel++;
             initGame();
         } else {
             currentLevel = 1;
-            pickRandomTheme(); // Phá đảo xong chơi lại từ đầu sẽ đổi chủ đề mới
+            pickRandomTheme();
             initGame();
         }
     }
