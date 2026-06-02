@@ -23,7 +23,6 @@ body {
     position: relative;
 }
 
-/* Lớp phủ mờ giúp nhìn rõ thẻ bài trên mọi loại hình nền */
 body::before {
     content: "";
     position: absolute;
@@ -32,7 +31,6 @@ body::before {
     z-index: 1;
 }
 
-/* Đảm bảo các thành phần giao diện nổi lên trên lớp phủ */
 h2, .status-container, #themeName, .game-board, .overlay-message, #guideOverlay {
     position: relative;
     z-index: 2;
@@ -70,7 +68,6 @@ h2 {
 #levelStatus { color: #f472b6; text-shadow: 0 0 8px rgba(244, 114, 182, 0.4); }
 #timerStatus { color: #f59e0b; text-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
 
-/* Bàn chơi thu nhỏ (60px x 80px) để lộ nhiều không gian nền xung quanh */
 .game-board {
     display: grid;
     grid-gap: 10px;
@@ -120,7 +117,6 @@ h2 {
     transform: rotateY(180deg);
 }
 
-/* Các khung thông báo Pop-up */
 .overlay-message {
     display: none;
     position: fixed;
@@ -138,7 +134,6 @@ h2 {
     backdrop-filter: blur(10px);
 }
 
-/* Bảng hướng dẫn ban đầu */
 #guideOverlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -181,7 +176,6 @@ button {
 }
 button:hover { transform: scale(1.03); }
 
-/* Hiệu ứng thời gian cộng thêm +5s bay lên */
 .time-bonus {
     position: absolute;
     color: #4ade80;
@@ -248,7 +242,6 @@ button:hover { transform: scale(1.03); }
 </div>
 
 <script>
-// Kho dữ liệu 5 chủ đề, mỗi chủ đề có danh sách icon và kho ảnh nền tương ứng theo các màn
 const themes = [
     {
         name: "🧸 Đồ Chơi & Đáng Yêu",
@@ -292,7 +285,7 @@ const themes = [
     },
     {
         name: "⚽ Thể Thao & Hoạt Động",
-        icons: ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸", "🥊", "skateboard", "🚴", "🏊", "🏆", "🥇", "🎫", "🎮", "🎲", "🧩", "🎯", "🎸", "🎺", "🎤"],
+        icons: ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸", "🥊", "🛹", "🚴", "🏊", "🏆", "🥇", "🎫", "🎮", "🎲", "🧩", "🎯", "🎸", "🎺", "🎤"],
         backgrounds: [
             "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200",
             "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200",
@@ -338,7 +331,6 @@ function pickRandomTheme() {
 }
 
 function changeBackground() {
-    // Lấy ảnh ngẫu nhiên từ kho ảnh nền của chủ đề hiện tại
     const bgArray = currentTheme.backgrounds;
     const randomBg = bgArray[(currentLevel - 1) % bgArray.length];
     document.body.style.backgroundImage = `url('${randomBg}')`;
@@ -351,12 +343,10 @@ function initGame() {
     isGameOver = false;
     levelStatus.innerText = `MÀN ${currentLevel} / ${maxLevel}`;
     
-    // Tự động thay đổi ảnh nền thú vị theo chủ đề và màn chơi
     changeBackground();
     
     totalPairsNeeded = currentLevel * 2;
     
-    // Quản lý thời gian theo các màn chơi
     if (currentLevel <= 3) timeLeft = 30;
     else if (currentLevel <= 5) timeLeft = 45;
     else if (currentLevel <= 7) timeLeft = 60;
@@ -365,7 +355,6 @@ function initGame() {
     timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
     timerStatus.style.color = "#f59e0b";
 
-    // Bố trí số lượng cột lưới bài co giãn
     let columns = 4;
     if (totalPairsNeeded <= 2) columns = 2;
     else if (totalPairsNeeded === 3 || totalPairsNeeded === 6) columns = 3;
@@ -416,7 +405,6 @@ function checkMatch() {
         matchedPairs++;
         flippedCards = [];
         
-        // CƠ CHẾ ĐẶC BIỆT: Từ màn 5 trở đi lật đúng được cộng 5 giây
         if (currentLevel >= 5 && !isGameOver) {
             timeLeft += 5;
             timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
@@ -436,7 +424,6 @@ function checkMatch() {
     }
 }
 
-// Hiển thị hiệu ứng chữ "+5s" xanh lục bay lên tại vị trí lật thẻ đúng
 function showTimeBonus(targetCard) {
     const rect = targetCard.getBoundingClientRect();
     const bonus = document.createElement("div");
@@ -457,9 +444,10 @@ function showWinMessage() {
         msgText.innerText = `Cậu vượt qua màn ${currentLevel} rồi. Sang màn tiếp theo với hình nền và vị trí thẻ hoàn toàn mới nhé!`;
         msgBtn.innerText = "Chơi Tiếp Luôn 🚀";
     } else {
-        msgTitle.innerText = "🏆 CHIẾN THẮNG CUỐI CÙNG 🏆";
+        // ĐÃ THAY ĐỔI LỜI CHÚC PHÁ ĐẢO THEO ĐÚNG Ý CẬU:
+        msgTitle.innerText = "🏆 PHÁ ĐẢO THÀNH CÔNG 🏆";
         msgTitle.style.color = "#f472b6";
-        msgText.innerHTML = "Trời ơiii cậu siêu thật sự! Đã phá đảo hết cả 10 màn chơi thử thách của tớ rồi! <br><br> Chúc cậu luôn vui vẻ, hạnh phúc và mãi nhớ về tớ nhé! 🥰💖✨";
+        msgText.innerHTML = "uầy, khét lẹt thế, phá đảo được luôn cho đấy à! 😎🔥✨";
         msgBtn.innerText = "Chơi Lại Từ Đầu 🔄";
         setInterval(createFirework, 200);
     }
@@ -470,7 +458,7 @@ function showLoseMessage() {
     msgBox.style.display = "block";
     msgTitle.innerText = "Hết Giờ Mất Rồi! 😢";
     msgTitle.style.color = "#ef4444";
-    msgText.innerText = `Không sao nè, màn này vừa được tráo lại bài rồi. Bấm nút dưới để thử lại màn ${currentLevel} nhé!`;
+    msgText.innerText = `Không sao nè, màn này vừa được tráo lại bài rồi. Bấm nút dưới để chơi lại màn ${currentLevel} nhé!`;
     msgBtn.innerText = "Thử Lại Xem Sao 🔄";
 }
 
