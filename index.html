@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thử Thách Trí Nhớ 10 Cấp Độ - Giới Hạn Thời Gian</title>
+<style>
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #f1f5f9;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h2 {
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    margin: 5px 0;
+}
+
+.status-container {
+    display: flex;
+    gap: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+#levelStatus {
+    color: #f472b6;
+    text-shadow: 0 0 8px rgba(244, 114, 182, 0.4);
+}
+
+#timerStatus {
+    color: #f59e0b;
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.game-board {
+    display: grid;
+    grid-gap: 12px;
+    perspective: 1000px;
+    max-width: 100%;
+    justify-content: center;
+}
+
+.card {
+    width: 70px;
+    height: 90px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.4s;
+    cursor: pointer;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+.card-front {
+    background: #1e293b;
+    border: 2px solid #f472b6;
+}
+.card-front::before {
+    content: "❓";
+    font-size: 20px;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #311042, #1e1b4b);
+    border: 2px solid #38bdf8;
+    transform: rotateY(180deg);
+}
+
+.overlay-message {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid #f472b6;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    z-index: 100;
+    max-width: 320px;
+    width: 80%;
+}
+
+button {
+    background: linear-gradient(90deg, #f472b6, #38bdf8);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(244, 114, 182, 0.4);
+    transition: 0.2s;
+}
+button:hover { transform: scale(1.05); }
+
+.star {
+    position: absolute;
+    animation: firework 1s ease-out forwards;
+    pointer-events: none;
+}
+@keyframes firework {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--x), var(--y)) scale(0.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<h2>Trí Nhớ Siêu Phàm 🧩</h2>
+
+<div class="status-container">
+    <div id="levelStatus">MÀN 1 / 10</div>
+    <div id="timerStatus">⏱️ Thời gian: 30s</div>
+</div>
+
+<div class="game-board" id="board"></div>
+
+<div class="overlay-message" id="msgBox">
+    <h3 id="msgTitle" style="color: #38bdf8; margin: 0 0 10px 0;">Qua Màn Rồi! 🎉</h3>
+    <p id="msgText" style="margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 15px;"></p>
+    <button id="msgBtn" onclick="handleButtonClick()">Chơi Tiếp Khum 🚀</button>
+</div>
+
+<script>
+const allIcons = ["💖", "🐱", "🚀", "🍕", "🧸", "🍦", "🦄", "🎈", "🌸", "⭐", "🍀", "🍭", "🎸", "🎨", "👑", "🔮", "🐼", "🦊", "🍩", "💎", "🐳", "🍓", "🧁", "🌟"];
+
+let currentLevel = 1;
+const maxLevel = 10;
+let flippedCards = [];
+let matchedPairs = 0;
+let totalPairsNeeded = 0;
+
+let timeLeft = 0;
+let timerInterval = null;
+let isGameOver = false;
+
+const board = document.getElementById("board");
+const levelStatus = document.getElementById("levelStatus");
+const timerStatus = document.getElementById("timerStatus");
+const msgBox = document.getElementById("msgBox");
+const msgTitle = document.getElementById("msgTitle");
+const msgText = document.getElementById("msgText");
+const msgBtn = document.getElementById("msgBtn");
+
+initGame();
+
+function initGame() {
+    board.innerHTML = "";
+    flippedCards = [];
+    matchedPairs = 0;
+    isGameOver = false;
+    levelStatus.innerText = `MÀN ${currentLevel} / ${maxLevel}`;
+    
+    totalPairsNeeded = currentLevel * 2;
+    
+    // LOGIC THỜI GIAN THEO YÊU CẦU CỦA CẬU:
+    if (currentLevel <= 3) {
+        timeLeft = 30; // 3 màn đầu là 30 giây
+    } else if (currentLevel <= 5) {
+        timeLeft = 45; // 2 màn sau là 45 giây
+    } else if (currentLevel <= 7) {
+        timeLeft = 60; // 2 màn sau nữa là 1 phút (60 giây)
+    } else {
+        timeLeft = 90; // các màn còn lại là 1 phút 30 giây (90 giây)
+    }
+    
+    timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
+    timerStatus.style.color = "#f59e0b";
+
+    let columns = 4;
+    if (totalPairsNeeded <= 2) columns = 2;
+    else if (totalPairsNeeded === 3 || totalPairsNeeded === 6) columns = 3;
+    else columns = 4;
+    board.style.gridTemplateColumns = `repeat(${columns}, 70px)`;
+
+    let selectedIcons = allIcons.slice(0, totalPairsNeeded);
+    let gameIcons = [...selectedIcons, ...selectedIcons];
+    gameIcons.sort(() => Math.random() - 0.5);
+
+    gameIcons.forEach(icon => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.icon = icon;
+        card.innerHTML = `
+            <div class="card-face card-front"></div>
+            <div class="card-face card-back">${icon}</div>
+        `;
+        card.addEventListener("click", flipCard);
+        board.appendChild(card);
+    });
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    if (isGameOver) return;
+    
+    timeLeft--;
+    timerStatus.innerText = `⏱️ Thời gian: ${timeLeft}s`;
+    
+    if (timeLeft <= 5) {
+        timerStatus.style.color = "#ef4444";
+    }
+
+    if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        showLoseMessage();
+    }
+}
+
+function flipCard() {
+    if (flippedCards.length === 2 || this.classList.contains("flipped") || timeLeft <= 0 || isGameOver) return;
+    this.classList.add("flipped");
+    flippedCards.push(this);
+    if (flippedCards.length === 2) {
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const [card1, card2] = flippedCards;
+    if (card1.dataset.icon === card2.dataset.icon) {
+        matchedPairs++;
+        flippedCards = [];
+        if (matchedPairs === totalPairsNeeded) {
+            clearInterval(timerInterval);
+            setTimeout(showWinMessage, 500);
+        }
+    } else {
+        setTimeout(() => {
+            card1.classList.remove("flipped");
+            card2.classList.remove("flipped");
+            flippedCards = [];
+        }, 700);
+    }
+}
+
+function showWinMessage() {
+    isGameOver = true;
+    msgBox.style.display = "block";
+    if (currentLevel < maxLevel) {
+        msgTitle.innerText = "Đỉnh Quá Đii! 🎉";
+        msgTitle.style.color = "#38bdf8";
+        msgText.innerText = `Cậu vượt qua màn ${currentLevel} rồi. Sang màn sau thử thách sẽ tăng lên đó nha!`;
+        msgBtn.innerText = "Chơi Tiếp Luôn 🚀";
+    } else {
+        msgTitle.innerText = "🏆 CHIẾN THẮNG CUỐI CÙNG 🏆";
+        msgTitle.style.color = "#f472b6";
+        msgText.innerHTML = "Trời ơiii cậu siêu thật sự! Đã phá đảo hết 10 màn chơi thử thách thời gian của tớ rồi! <br><br> Chúc cậu luôn hạnh phúc và mãi nhớ về tớ nhé! 🥰💖✨";
+        msgBtn.innerText = "Chơi Lại Từ Đầu 🔄";
+        setInterval(createFirework, 200);
+    }
+}
+
+function showLoseMessage() {
+    isGameOver = true;
+    msgBox.style.display = "block";
+    msgTitle.innerText = "Hết Giờ Mất Rồi! 😢";
+    msgTitle.style.color = "#ef4444";
+    msgText.innerText = `Tiếc quá chii, chỉ thiếu một chút xíu nữa thôi hà. Cậu bấm nút dưới để chơi lại màn ${currentLevel} nhé!`;
+    msgBtn.innerText = "Thử Lại Xem Sao 🔄";
+}
+
+function handleButtonClick() {
+    msgBox.style.display = "none";
+    if (msgTitle.innerText.includes("Hết Giờ")) {
+        initGame();
+    } else {
+        if (currentLevel < maxLevel) {
+            currentLevel++;
+            initGame();
+        } else {
+            currentLevel = 1;
+            initGame();
+        }
+    }
+}
+
+function createFirework() {
+    const originX = Math.random() * window.innerWidth;
+    const originY = Math.random() * window.innerHeight;
+    const colors = ["✨", "⭐", "💖", "💙", "💛"];
+    for (let i = 0; i < 15; i++) {
+        const star = document.createElement("div");
+        star.innerHTML = colors[Math.floor(Math.random() * colors.length)];
+        star.className = "star";
+        star.style.left = originX + "px";
+        star.style.top = originY + "px";
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 80;
+        star.style.setProperty('--x', Math.cos(angle) * distance + "px");
+        star.style.setProperty('--y', Math.sin(angle) * distance + "px");
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 1000);
+    }
+}
+</script>
+
+</body>
+</html>
+
